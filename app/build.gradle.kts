@@ -7,11 +7,11 @@ plugins {
 
 
 android {
-    namespace = "com.plcoding.cryptotracker"
+    namespace = "com.demo.cryptotracker"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.plcoding.cryptotracker"
+        applicationId = "com.demo.cryptotracker"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -68,6 +68,8 @@ dependencies {
     implementation(libs.bundles.koin)
 
     implementation(libs.bundles.ktor)
+
+    implementation(libs.navigation.compose)
 
     testImplementation(libs.junit)
 
