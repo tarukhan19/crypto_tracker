@@ -9,7 +9,6 @@ import com.plcoding.cryptotracker.presentation.models.toCoinUi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -28,10 +27,14 @@ class CoinListViewModel(
             CoinListState())
 
 
-    private fun onAction(action: CoinListAction) {
+    fun onAction(action: CoinListAction) {
         when(action) {
             is CoinListAction.onCoinClick -> {
-
+                _state.update {
+                    it.copy(
+                        selectedCoinUi = action.coinUi
+                    )
+                }
             }
         }
     }
