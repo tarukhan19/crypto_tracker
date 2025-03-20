@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.plcoding.cryptotracker.core.domain.util.onError
 import com.plcoding.cryptotracker.core.domain.util.onSuccess
 import com.plcoding.cryptotracker.domain.CoinDataSource
+import com.plcoding.cryptotracker.presentation.models.CoinUi
 import com.plcoding.cryptotracker.presentation.models.toCoinUi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,32 +15,50 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
 
 class CoinListViewModel(
     private val coinDataSource: CoinDataSource
 ) : ViewModel() {
 
+    private val _event = Channel<CoinListEvent>()
+    val events = _event.receiveAsFlow()
+
     private val _state = MutableStateFlow(CoinListState())
     val state = _state
         .onStart { loadCoins() }
-        .stateIn(viewModelScope ,
+        .stateIn(
+            viewModelScope,
             SharingStarted.WhileSubscribed(5000L),
-            CoinListState())
+            CoinListState()
+        )
 
 
     fun onAction(action: CoinListAction) {
-        when(action) {
+        when (action) {
             is CoinListAction.onCoinClick -> {
-                _state.update {
-                    it.copy(
-                        selectedCoinUi = action.coinUi
-                    )
-                }
+             selectCoin(action.coinUi)
             }
         }
     }
-    private val _event = Channel<CoinListEvent>()
-    val events = _event.receiveAsFlow()
+
+    private fun selectCoin(coinUi: CoinUi) {
+        _state.update { it.copy(selectedCoinUi = coinUi) }
+        viewModelScope.launch {
+            coinDataSource.getCoinHistory(
+                coinId = coinUi.id,
+                start = ZonedDateTime.now().minusDays(5),
+                end = ZonedDateTime.now(),
+            )
+                .onSuccess { history ->
+                    println(history)
+                }
+                .onError { error ->
+                    _event.send(CoinListEvent.Error(error))
+                }
+
+        }
+    }
 
     private fun loadCoins() {
         viewModelScope.launch {
