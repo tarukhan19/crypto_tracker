@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.plcoding.cryptotracker.presentation.coin_detail.CoinDetailScreen
 import com.plcoding.cryptotracker.presentation.coin_list.CoinListScreen
 import com.plcoding.cryptotracker.presentation.coin_list.CoinListViewModel
 import com.plcoding.cryptotracker.ui.theme.CryptoTrackerTheme
@@ -26,10 +27,18 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     val vm = koinViewModel<CoinListViewModel>()
                     val state = vm.state.collectAsStateWithLifecycle()
-                    CoinListScreen(
-                        state = state.value,
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    when {
+                        state.value.selectedCoinUi != null ->
+                            CoinDetailScreen(
+                                state = state.value,
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        else -> CoinListScreen(
+                            state = state.value,
+                            modifier = Modifier.padding(innerPadding),
+                            onAction = vm::onAction
+                        )
+                    }
                 }
             }
         }
