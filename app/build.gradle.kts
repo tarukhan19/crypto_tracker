@@ -67,7 +67,11 @@ dependencies {
 
     implementation(libs.bundles.koin)
 
-    implementation(libs.bundles.ktor)
+    implementation(libs.retrofit2)
+    implementation(libs.retrofit2.converter.gson)
+    implementation(libs.interceptor.retrofit2)
+    implementation(libs.kotlinx.serialization)
+
 
     implementation(libs.navigation.compose)
 

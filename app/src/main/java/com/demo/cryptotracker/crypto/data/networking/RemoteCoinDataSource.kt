@@ -10,18 +10,13 @@ import com.demo.cryptotracker.crypto.data.networking.dto.CoinResponseDto
 import com.demo.cryptotracker.crypto.domain.Coin
 import com.demo.cryptotracker.crypto.domain.CoinDataSource
 import com.demo.cryptotracker.crypto.domain.CoinPrice
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-class RemoteCoinDataSource(private val httpClient: HttpClient) : CoinDataSource {
+class RemoteCoinDataSource(private val api: CoinApiService ) : CoinDataSource {
     override suspend fun getCoins(): Result<List<Coin>, NetworkError> {
         return safeCall<CoinResponseDto> {
-            httpClient.get(
-                urlString = constructUrl("/assets")
-            )
+            api.getCoins()
         }.map { response ->
             response.data.map { it.toCoin() }
         }
@@ -36,13 +31,7 @@ class RemoteCoinDataSource(private val httpClient: HttpClient) : CoinDataSource 
         val endMillis = end.withZoneSameInstant(ZoneId.of("UTC")).toInstant().toEpochMilli()
 
         return safeCall<CoinHistoryDto> {
-            httpClient.get(
-                urlString = constructUrl("/assets/$coinId/history")
-            ) {
-                parameter("interval", "h6")
-                parameter("start", startMillis)
-                parameter("end", endMillis)
-            }
+            api.getCoinHistory(coinId, startMillis = startMillis, endMillis = endMillis)
         }. map { response ->
             response.data.map { it.toCoinPrice() }
 
