@@ -9,7 +9,9 @@ import retrofit2.http.Query
 
 interface CoinApiService {
     @GET("assets")
-    suspend fun getCoins(): Response<CoinResponseDto>
+    suspend fun getCoins(
+        @Query("apiKey") apiKey: String
+    ): Response<CoinResponseDto>
 
     @GET("assets/{id}/history")
     suspend fun getCoinHistory(
